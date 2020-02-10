@@ -19,7 +19,7 @@
             v-if="node.level == 1"
             type="text"
             size="mini"
-            @click="() => append(data)">添加二级分类</el-button>
+            @click="() => {dialogFormVisible = true; subject.parentId = data.id}">添加二级分类</el-button>
           <el-button
             v-if="node.level == 2 || node.level == 1"
             type="text"
@@ -36,7 +36,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
             <el-button @click="dialogFormVisible = false">取 消</el-button>
-            <el-button type="primary" @click="appendLevelOne()">确 定</el-button>
+            <el-button type="primary" @click="appendSubject()">确 定</el-button>
         </div>
     </el-dialog>
   </div>
@@ -72,9 +72,60 @@ export default {
   },
 
   methods: {
-        // 增加分类
+        // 添加分类
+        appendSubject(){
+          // 判断是一级分类，还是二级分类  根据  parentId
+          if(!this.subject.parentId){
+            this.appendLevelOne()
+          }else{
+            this.appendLevelTwo()
+          }
+        },
+        // 增加二级分类
+        appendLevelTwo(){
+           subject.addSubjectTwo(this.subject)
+           .then(response =>{
+              this.$message({
+                  type: 'success',
+                  message: '添加分类成功!'
+              })
+              // 关闭弹框
+              this.dialogFormVisible = false
+              // 清空表单内容
+              this.subject.title = ''
+              this.subject.parentId = ''
+              // 刷新整个页面
+              this.fetchNodeList()
+           })
+           .catch(response =>{
+               this.$message({
+                  type: 'error',
+                  message: '添加分类失败!'
+              })
+           })
+        },
+        // 增加一级分类
         appendLevelOne(){
-
+           subject.addSubjectOne(this.subject)
+           .then(response =>{
+              this.$message({
+                  type: 'success',
+                  message: '添加分类成功!'
+              })
+              // 关闭弹框
+              this.dialogFormVisible = false
+              // 清空表单内容
+              this.subject.title = ''
+              this.subject.parentId = ''
+              // 刷新整个页面
+              this.fetchNodeList()
+           })
+           .catch(response =>{
+               this.$message({
+                  type: 'error',
+                  message: '添加分类失败!'
+              })
+           })
         },
         // 点击一级分类,出现增加弹框
         addOneLevelDialog(){

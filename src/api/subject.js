@@ -18,5 +18,21 @@ export default {
             url: '/eduService/edu-subject/' + id,
             method: 'delete'
         })
+    },
+    // 添加一级分类
+    addSubjectOne(subject) {
+        return request({
+            url: '/eduService/edu-subject/addOneLevel',
+            method: 'post',
+            data: subject
+        })
+    },
+    // 添加二级分类
+    addSubjectTwo(subject) {
+        return request({
+            url: '/eduService/edu-subject/addTwoLevel',
+            method: 'post',
+            data: subject
+        })
     }
 }
