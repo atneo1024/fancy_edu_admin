@@ -79,7 +79,11 @@
 
         </template>
       </el-table-column>
-
+      <el-table-column prop="status" label="课程状态" width="100" align="center" >
+          <template slot-scope="scope">
+              <el-tag :type="scope.row.status === 'Draft' ? 'primary' : 'success'">{{scope.row.status === 'Draft' ? '未发布' : '已发布'}}</el-tag>
+          </template>
+      </el-table-column>
       <el-table-column label="创建时间" align="center">
         <template slot-scope="scope">
           {{ scope.row.gmtCreate.substr(0, 10) }}
@@ -104,10 +108,10 @@
 
       <el-table-column label="操作" width="150" align="center">
         <template slot-scope="scope">
-          <router-link :to="'/edu/course/info/'+scope.row.id">
+          <router-link :to="'/course/info/'+scope.row.id">
             <el-button type="text" size="mini" icon="el-icon-edit">编辑课程信息</el-button>
           </router-link>
-          <router-link :to="'/edu/course/chapter/'+scope.row.id">
+          <router-link :to="'/course/chapter/'+scope.row.id">
             <el-button type="text" size="mini" icon="el-icon-edit">编辑课程大纲</el-button>
           </router-link>
           <el-button type="danger" size="mini" icon="el-icon-delete" @click="removeDataById(scope.row.id)">删除</el-button>

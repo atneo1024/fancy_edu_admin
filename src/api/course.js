@@ -45,5 +45,19 @@ export default {
             url: '/eduService/edu-course/deleteCourse/' + id,
             method: 'delete'
         })
+    },
+    // 查询课程的详情
+    getCourseDesc(id){
+        return request({
+            url: '/eduService/edu-course/getAllCourseInfo/' + id,
+            method: 'get',
+        })
+    },
+    // 发布课程
+    updateCourseStatus(id){
+        return request({
+            url: '/eduService/edu-course/updateCourseStatus/' + id,
+            method: 'get',
+        })
     }
 }

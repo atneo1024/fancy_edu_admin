@@ -19,7 +19,7 @@
             <p>
                 {{ chapter.title }}
               <span class="acts">
-                  <el-button type="text" @click="openVideoDialog(chapter.id)">添加小节</el-button>
+                  <el-button type="text" @click="openAddVideo(chapter.id)">添加小节</el-button>
                   <el-button style="" type="text" @click="getChapterById(chapter.id)">编辑</el-button>
                   <el-button type="text" @click="removeChapter(chapter.id)">删除</el-button>
               </span>
@@ -79,6 +79,7 @@
 </template>
 <script>
 import chapter from '@/api/chapter'
+import video from '@/api/video'
 
 export default {
     data() {
@@ -103,6 +104,7 @@ export default {
         }
     },
     created () {
+      console.log("chapter creat...")
         this.init()
     },
     methods: {
@@ -113,11 +115,125 @@ export default {
             this.getChapterVideoId(this.id)
           }
         },
+        // 删除小节
+        removeVideo(id) {
+          this.$confirm('此操作将永久删除该章节, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+        }).then(() => {
+            //调用方法进行删除
+            //return 表示后面then还会执行
+            return video.deleteByVideoId(id)
+        }).then(() => {
+            //刷新整个页面
+            this.getChapterVideoId(this.id)
+            this.$message({
+                type: 'success',
+                message: '删除成功!'
+            })
+        }).catch(response => {
+            //判断点击取消，还是删除失败
+            if (response === 'cancel') {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                })
+            } else {
+                this.$message({
+                    type: 'error',
+                    message: '删除失败'
+                })
+            }        
+        })
+        },
+        // 编辑小节
+        openVideoEditDialog(videoId){
+          //弹出框
+          this.dialogVidoFormVisible = true
+          video.getVideoInfo(videoId)
+          .then(response =>{
+            this.video = response.data.video
+          })
+          .catch(response =>{
+            // 提示信息
+            this.$message({
+                  type: 'error',
+                  message: '数据加载中!'
+              })
+          })
+        },
+        // 添加小节,弹出框，需要章节ID
+        openAddVideo(chapterId){
+            //弹出框
+            this.dialogVidoFormVisible = true
+            // 复制给章节ID
+            this.video.chapterId = chapterId
+            // 清空
+            this.video.title = ''
+            this.video.sort = ''
+        },
 
-        saveOrUpdateVideo() {
-          //判断修改还是添加
-              this.addVideo()
-                   
+        // 判断添加还是修改
+        saveOrUpdateVideo(){
+          console.log(this.video.id)
+          if(!this.video.id){
+            // 添加
+            this.addVideo()
+          }else {
+            this.updateVideo()
+          }
+        },
+
+        // 修改小节
+        updateVideo(){
+          video.updateVideo(this.video)
+           .then(response =>{
+            // 关闭弹窗
+            this.dialogVidoFormVisible = false
+            // 提示信息
+              this.$message({
+                    type: 'success',
+                    message: '修改小节成功!'
+                })
+            // 刷新页面
+            this.getChapterVideoId(this.id)
+            // 清空
+            this.video.id = ''
+           })
+           .catch(response =>{
+              this.$message({
+                    type: 'error',
+                    message: '修改小节失败!'
+                })
+           })
+
+        },
+
+        // 添加小节
+        addVideo(){
+          console.log("--------------addVideo")
+          console.log(this.id)
+          // 把课程ID进行赋值
+          this.video.courseId = this.id
+          video.addVideo(this.video)
+          .then(response =>{
+            // 关闭弹窗
+            this.dialogVidoFormVisible = false
+            // 提示信息
+              this.$message({
+                    type: 'success',
+                    message: '添加小节成功!'
+                })
+            // 刷新页面
+            this.getChapterVideoId(this.id)
+          })
+          .catch(response =>{
+              this.$message({
+                    type: 'error',
+                    message: '添加小节失败!'
+                })
+          })
         },
 
         // 添加章节，弹出框，表单数据清空
@@ -147,7 +263,7 @@ export default {
                 type: 'success',
                 message: '删除成功!'
             })
-        }).catch(() => {
+        }).catch(response => {
             //判断点击取消，还是删除失败
             if (response === 'cancel') {
                 this.$message({
@@ -231,14 +347,16 @@ export default {
 
         //根据课程id查询章节和小节信息
         getChapterVideoId(id) {
+          console.log("chapter getChapterVideoId..." + id)
           chapter.getAllChapterVideo(id)
             .then(response => {
+          console.log(response)
                 //赋值给集合
                 this.chapterVideoList = response.data.items
             })
             .catch(response => {
               this.$message({
-                    type: 'success',
+                    type: 'error',
                     message: '数据加载失败!'
                 })
             })
